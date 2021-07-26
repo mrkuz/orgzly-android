@@ -46,7 +46,7 @@ class AgendaAdapter(
         if (BuildConfig.LOG_DEBUG) LogUtils.d(TAG)
 
         return when (viewType) {
-            OVERDUE_ITEM_TYPE, DAY_ITEM_TYPE -> {
+            OVERDUE_ITEM_TYPE, TODAY_ITEM_TYPE, DAY_ITEM_TYPE -> {
                 val binding = ItemAgendaDividerBinding.inflate(
                         LayoutInflater.from(context), parent, false)
 
@@ -70,6 +70,13 @@ class AgendaAdapter(
             OVERDUE_ITEM_TYPE -> {
                 val holder = h as DividerViewHolder
                 val item = getItem(position) as AgendaItem.Overdue
+
+                bindDividerView(holder, item)
+            }
+
+            TODAY_ITEM_TYPE -> {
+                val holder = h as DividerViewHolder
+                val item = getItem(position) as AgendaItem.Today
 
                 bindDividerView(holder, item)
             }
@@ -98,6 +105,10 @@ class AgendaAdapter(
         holder.binding.itemAgendaDividerText.text = context.getString(R.string.overdue)
     }
 
+    private fun bindDividerView(holder: DividerViewHolder, item: AgendaItem.Today) {
+        holder.binding.itemAgendaDividerText.text = context.getString(R.string.today)
+    }
+
     private fun bindDividerView(holder: DividerViewHolder, item: AgendaItem.Day) {
         holder.binding.itemAgendaDividerText.text = userTimeFormatter.formatDate(item.day)
     }
@@ -108,6 +119,7 @@ class AgendaAdapter(
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
             is AgendaItem.Overdue -> OVERDUE_ITEM_TYPE
+            is AgendaItem.Today -> TODAY_ITEM_TYPE
             is AgendaItem.Day -> DAY_ITEM_TYPE
             else -> NOTE_ITEM_TYPE
         }
@@ -124,7 +136,7 @@ class AgendaAdapter(
     override fun isStickyHeader(position: Int): Boolean {
         return if (position < itemCount) {
             return when (getItemViewType(position)) {
-                OVERDUE_ITEM_TYPE, DAY_ITEM_TYPE -> true
+                OVERDUE_ITEM_TYPE, TODAY_ITEM_TYPE, DAY_ITEM_TYPE -> true
                 else -> false
             }
         } else {
@@ -136,8 +148,9 @@ class AgendaAdapter(
         private val TAG = AgendaAdapter::class.java.name
 
         const val OVERDUE_ITEM_TYPE = 0
-        const val DAY_ITEM_TYPE = 1
-        const val NOTE_ITEM_TYPE = 2
+        const val TODAY_ITEM_TYPE = 1
+        const val DAY_ITEM_TYPE = 2
+        const val NOTE_ITEM_TYPE = 3
 
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<AgendaItem> =
                 object : DiffUtil.ItemCallback<AgendaItem>() {

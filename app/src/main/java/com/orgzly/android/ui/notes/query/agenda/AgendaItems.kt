@@ -8,6 +8,8 @@ import com.orgzly.android.util.AgendaUtils
 import com.orgzly.org.datetime.OrgInterval
 import com.orgzly.org.datetime.OrgRange
 import org.joda.time.DateTime
+import org.joda.time.DateTimeUtils
+import org.joda.time.LocalDate
 
 object AgendaItems {
     data class ExpandableOrgRange(
@@ -137,7 +139,11 @@ object AgendaItems {
         // Add daily
         dailyNotes.forEach { d ->
             // Always add day heading
-            result.add(AgendaItem.Day(agendaItemId++, DateTime(d.key)))
+            if (isToday(d.key)) {
+                result.add(AgendaItem.Today(agendaItemId++))
+            } else {
+                result.add(AgendaItem.Day(agendaItemId++, DateTime(d.key)))
+            }
 
             if (d.value.isNotEmpty()) {
                 result.addAll(d.value)
@@ -146,4 +152,6 @@ object AgendaItems {
 
         return result
     }
+
+    private fun isToday(date : Long) = LocalDate.now().isEqual(DateTime(date).toLocalDate())
 }

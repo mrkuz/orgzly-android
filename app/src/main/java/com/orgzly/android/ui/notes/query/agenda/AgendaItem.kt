@@ -7,6 +7,8 @@ import org.joda.time.DateTime
 sealed class AgendaItem(open val id: Long) {
     data class Overdue(override val id: Long) : AgendaItem(id)
 
+    data class Today(override val id: Long) : AgendaItem(id)
+
     data class Day(override val id: Long, val day: DateTime) : AgendaItem(id)
 
     data class Note(

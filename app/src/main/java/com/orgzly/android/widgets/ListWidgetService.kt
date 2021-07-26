@@ -46,6 +46,8 @@ class ListWidgetService : RemoteViewsService() {
     private sealed class WidgetEntry(open val id: Long) {
         data class Overdue(override val id: Long) : WidgetEntry(id)
 
+        data class Today(override val id: Long) : WidgetEntry(id)
+
         data class Day(override val id: Long, val day: DateTime) : WidgetEntry(id)
 
         data class Note(
@@ -101,6 +103,7 @@ class ListWidgetService : RemoteViewsService() {
                 dataList = agendaItems.map {
                     when (it) {
                         is AgendaItem.Overdue -> WidgetEntry.Overdue(it.id)
+                        is AgendaItem.Today -> WidgetEntry.Today(it.id)
                         is AgendaItem.Day -> WidgetEntry.Day(it.id, it.day)
                         is AgendaItem.Note -> WidgetEntry.Note(it.id, it.note, it.timeType)
                     }
@@ -129,6 +132,12 @@ class ListWidgetService : RemoteViewsService() {
                 is WidgetEntry.Overdue ->
                     RemoteViews(context.packageName, R.layout.item_list_widget_divider).apply {
                         setupRemoteViews(this)
+                        WidgetStyle.updateDivider(this, context)
+                    }
+
+                is WidgetEntry.Today ->
+                    RemoteViews(context.packageName, R.layout.item_list_widget_divider).apply {
+                        setupRemoteViews(this, entry)
                         WidgetStyle.updateDivider(this, context)
                     }
 
@@ -162,6 +171,12 @@ class ListWidgetService : RemoteViewsService() {
             views.setTextViewText(
                     R.id.widget_list_item_divider_value,
                     context.getString(R.string.overdue))
+        }
+
+        private fun setupRemoteViews(views: RemoteViews, entry: WidgetEntry.Today) {
+            views.setTextViewText(
+                    R.id.widget_list_item_divider_value,
+                    context.getString(R.string.today))
         }
 
         private fun setupRemoteViews(views: RemoteViews, entry: WidgetEntry.Day) {
