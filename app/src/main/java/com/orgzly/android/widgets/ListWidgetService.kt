@@ -44,7 +44,7 @@ class ListWidgetService : RemoteViewsService() {
     }
 
     private sealed class WidgetEntry(open val id: Long) {
-        data class Overdue(override val id: Long) : WidgetEntry(id)
+        data class Header(override val id: Long, val resId : Int) : WidgetEntry(id)
 
         data class Day(override val id: Long, val day: DateTime) : WidgetEntry(id)
 
@@ -100,7 +100,7 @@ class ListWidgetService : RemoteViewsService() {
 
                 dataList = agendaItems.map {
                     when (it) {
-                        is AgendaItem.Overdue -> WidgetEntry.Overdue(it.id)
+                        is AgendaItem.Header -> WidgetEntry.Header(it.id, it.resId)
                         is AgendaItem.Day -> WidgetEntry.Day(it.id, it.day)
                         is AgendaItem.Note -> WidgetEntry.Note(it.id, it.note, it.timeType)
                     }
@@ -126,9 +126,9 @@ class ListWidgetService : RemoteViewsService() {
             }
 
             return when (val entry = dataList[position]) {
-                is WidgetEntry.Overdue ->
+                is WidgetEntry.Header ->
                     RemoteViews(context.packageName, R.layout.item_list_widget_divider).apply {
-                        setupRemoteViews(this)
+                        setupRemoteViews(this, entry)
                         WidgetStyle.updateDivider(this, context)
                     }
 
@@ -158,10 +158,10 @@ class ListWidgetService : RemoteViewsService() {
             if (BuildConfig.LOG_DEBUG) LogUtils.d(TAG)
         }
 
-        private fun setupRemoteViews(views: RemoteViews) {
+        private fun setupRemoteViews(views: RemoteViews, entry: WidgetEntry.Header) {
             views.setTextViewText(
                     R.id.widget_list_item_divider_value,
-                    context.getString(R.string.overdue))
+                    context.getString(entry.resId))
         }
 
         private fun setupRemoteViews(views: RemoteViews, entry: WidgetEntry.Day) {

@@ -5,7 +5,7 @@ import com.orgzly.android.ui.TimeType
 import org.joda.time.DateTime
 
 sealed class AgendaItem(open val id: Long) {
-    data class Overdue(override val id: Long) : AgendaItem(id)
+    data class Header(override val id: Long, val resId : Int) : AgendaItem(id)
 
     data class Day(override val id: Long, val day: DateTime) : AgendaItem(id)
 

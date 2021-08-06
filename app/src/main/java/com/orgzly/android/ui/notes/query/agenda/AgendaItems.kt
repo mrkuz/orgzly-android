@@ -1,5 +1,6 @@
 package com.orgzly.android.ui.notes.query.agenda
 
+import com.orgzly.R
 import com.orgzly.android.db.entity.NoteView
 import com.orgzly.android.query.Query
 import com.orgzly.android.query.user.InternalQueryParser
@@ -8,6 +9,8 @@ import com.orgzly.android.util.AgendaUtils
 import com.orgzly.org.datetime.OrgInterval
 import com.orgzly.org.datetime.OrgRange
 import org.joda.time.DateTime
+import org.joda.time.DateTimeUtils
+import org.joda.time.LocalDate
 
 object AgendaItems {
     data class ExpandableOrgRange(
@@ -130,14 +133,18 @@ object AgendaItems {
 
         // Add overdue heading and notes
         if (overdueNotes.isNotEmpty()) {
-            result.add(AgendaItem.Overdue(agendaItemId++))
+            result.add(AgendaItem.Header(agendaItemId++, R.string.overdue))
             result.addAll(overdueNotes)
         }
 
         // Add daily
         dailyNotes.forEach { d ->
             // Always add day heading
-            result.add(AgendaItem.Day(agendaItemId++, DateTime(d.key)))
+            when {
+                isToday(d.key) ->  result.add(AgendaItem.Header(agendaItemId++, R.string.today))
+                isTomorrow(d.key) -> result.add(AgendaItem.Header(agendaItemId++, R.string.tomorrow))
+                else -> result.add(AgendaItem.Day(agendaItemId++, DateTime(d.key)))
+            }
 
             if (d.value.isNotEmpty()) {
                 result.addAll(d.value)
@@ -146,4 +153,8 @@ object AgendaItems {
 
         return result
     }
+
+    private fun isToday(date : Long) = LocalDate.now().isEqual(DateTime(date).toLocalDate())
+
+    private fun isTomorrow(date : Long) = LocalDate.now().plusDays(1).isEqual(DateTime(date).toLocalDate())
 }

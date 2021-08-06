@@ -46,7 +46,7 @@ class AgendaAdapter(
         if (BuildConfig.LOG_DEBUG) LogUtils.d(TAG)
 
         return when (viewType) {
-            OVERDUE_ITEM_TYPE, DAY_ITEM_TYPE -> {
+            HEADER_ITEM_TYPE, DAY_ITEM_TYPE -> {
                 val binding = ItemAgendaDividerBinding.inflate(
                         LayoutInflater.from(context), parent, false)
 
@@ -67,9 +67,9 @@ class AgendaAdapter(
 
     override fun onBindViewHolder(h: RecyclerView.ViewHolder, position: Int) {
         when (h.itemViewType) {
-            OVERDUE_ITEM_TYPE -> {
+            HEADER_ITEM_TYPE -> {
                 val holder = h as DividerViewHolder
-                val item = getItem(position) as AgendaItem.Overdue
+                val item = getItem(position) as AgendaItem.Header
 
                 bindDividerView(holder, item)
             }
@@ -94,8 +94,8 @@ class AgendaAdapter(
         }
     }
 
-    private fun bindDividerView(holder: DividerViewHolder, item: AgendaItem.Overdue) {
-        holder.binding.itemAgendaDividerText.text = context.getString(R.string.overdue)
+    private fun bindDividerView(holder: DividerViewHolder, item: AgendaItem.Header) {
+        holder.binding.itemAgendaDividerText.text = context.getString(item.resId)
     }
 
     private fun bindDividerView(holder: DividerViewHolder, item: AgendaItem.Day) {
@@ -107,7 +107,7 @@ class AgendaAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is AgendaItem.Overdue -> OVERDUE_ITEM_TYPE
+            is AgendaItem.Header -> HEADER_ITEM_TYPE
             is AgendaItem.Day -> DAY_ITEM_TYPE
             else -> NOTE_ITEM_TYPE
         }
@@ -124,7 +124,7 @@ class AgendaAdapter(
     override fun isStickyHeader(position: Int): Boolean {
         return if (position < itemCount) {
             return when (getItemViewType(position)) {
-                OVERDUE_ITEM_TYPE, DAY_ITEM_TYPE -> true
+                HEADER_ITEM_TYPE, DAY_ITEM_TYPE -> true
                 else -> false
             }
         } else {
@@ -135,7 +135,7 @@ class AgendaAdapter(
     companion object {
         private val TAG = AgendaAdapter::class.java.name
 
-        const val OVERDUE_ITEM_TYPE = 0
+        const val HEADER_ITEM_TYPE = 0
         const val DAY_ITEM_TYPE = 1
         const val NOTE_ITEM_TYPE = 2
 
